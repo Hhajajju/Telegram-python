@@ -65,19 +65,23 @@ conn.commit()
 
 # Command handler for /start
 async def start(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /start")
     user_id = update.message.from_user.id
     cursor.execute("INSERT OR IGNORE INTO users (user_id) VALUES (?)", (user_id,))
     conn.commit()
 
     keyboard = [
-        [KeyboardButton("🎁 Daily Bonus"), KeyboardButton("▶️ Watch Ads")],
+        [KeyboardButton("🎁 Daily Bonus"), KeyboardButton("💸Balance"), KeyboardButton("▶️ Watch Ads")],
         [KeyboardButton("🎉 Task"), KeyboardButton("👥 Invite")],
-        [KeyboardButton("💸 Withdraw"), KeyboardButton("☎️ Support"), KeyboardButton("✅ About Us")]
+        [KeyboardButton("💸 Withdraw"), KeyboardButton("☎️ Support"), KeyboardButton("✅ About Us")],
+
+[KeyboardButton("☎️ Admin")]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
     update.message.reply_text(
-        "🎉 Welcome to GetCash! 💰\n\n"
+        "🎉Welcome, {username}!\n"
+        f"Your User ID is: {user_id}\n\n"
         "Thank you for joining! Here’s how you can start earning:\n"
         "👀 Watch Ads – Earn by viewing ads.\n"
         "🤝 Refer Friends – Invite others and earn even more!\n"
@@ -89,6 +93,7 @@ async def start(update: Update, context: CallbackContext) -> None:
 
 # Balance handler
 async def balance(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /balance")
     user_id = update.message.from_user.id
     cursor.execute("SELECT balance FROM users WHERE user_id=?", (user_id,))
     balance = cursor.fetchone()[0]
@@ -96,6 +101,7 @@ async def balance(update: Update, context: CallbackContext) -> None:
 
 # Bonus handler (once every 24 hours)
 async def claim_bonus(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /bonus")
     user_id = update.message.from_user.id
     current_time = int(time.time())
 
@@ -116,6 +122,7 @@ async def claim_bonus(update: Update, context: CallbackContext) -> None:
 
 # Watch Ads (tracking each ad)
 async def watch_ads(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /watch ad")
     user_id = update.message.from_user.id
     ad_number = int(context.args[0])  # Example: Watch Ads 1 -> args[0] is 1
 
@@ -137,6 +144,7 @@ async def watch_ads(update: Update, context: CallbackContext) -> None:
 
 # Claim Task (Simulating Task Completion)
 async def claim_task(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /task")
     user_id = update.message.from_user.id
     task_description = "Visit our website, submit screenshot if you have completed the task."
     task_link = "https://website.com"
@@ -170,6 +178,7 @@ async def submit_task(update: Update, context: CallbackContext) -> None:
 
 # Invite handler - Generate referral link and display how many referrals user has
 async def invite(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /invite")
     user_id = update.message.from_user.id
     cursor.execute("SELECT referrals FROM users WHERE user_id=?", (user_id,))
     referrals = cursor.fetchone()[0]
@@ -180,6 +189,7 @@ async def invite(update: Update, context: CallbackContext) -> None:
 
 # Withdraw handler
 async def withdraw(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /withdraw")
     user_id = update.message.from_user.id
     cursor.execute("SELECT balance FROM users WHERE user_id=?", (user_id,))
     balance = cursor.fetchone()[0]
@@ -210,10 +220,12 @@ async def process_withdraw(update: Update, context: CallbackContext) -> None:
 
 # Support Command Handler
 async def support(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /support")
     await update.message.reply_text("Need help? Contact support@Earncash_0nline.")
 
 # About Us Command Handler
 async def about_us(update: Update, context: CallbackContext) -> None:
+print("Bot is responding to /About us")
     await update.message.reply_text(
         "EarnCash is a platform where you can earn money by completing simple tasks, watching ads, and referring friends. We aim to provide a seamless and rewarding experience for our users!"
     )
@@ -360,16 +372,16 @@ application.add_handler(CommandHandler('approve_or_reject_withdrawal', approve_o
 # Register valid commands with proper names.
 # Register handlers
 application.add_handler(CommandHandler("start", start))
-application.add_handler(CommandHandler("balance", balance))
-application.add_handler(CommandHandler("claim_bonus", claim_bonus))
-application.add_handler(CommandHandler("watch_ads", watch_ads))
-application.add_handler(CommandHandler("claim_task", claim_task))
+application.add_handler(CommandHandler("balance", Balance))
+application.add_handler(CommandHandler("claim_bonus",Bonus))
+application.add_handler(CommandHandler("watch_ads", Watch_ads))
+application.add_handler(CommandHandler("claim_task",Task))
 application.add_handler(MessageHandler(filters.PHOTO, submit_task))  # Handle screenshot submissions
-application.add_handler(CommandHandler("invite", invite))
-application.add_handler(CommandHandler("withdraw", withdraw))
+application.add_handler(CommandHandler("invite", Invite))
+application.add_handler(CommandHandler("withdraw", Withdraw))
 application.add_handler(CommandHandler("process_withdraw", process_withdraw))
-application.add_handler(CommandHandler("support", support))
-
+application.add_handler(CommandHandler("support", Support))
+application.add_handler(CommandHandler("about is", About Us))
 
 # Start the bot
 application.run_polling()
